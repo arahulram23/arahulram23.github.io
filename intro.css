@@ -1,0 +1,803 @@
+/* ==========================================================================
+   RR23 — Rahul Ram, Software Test Engineer
+   Design notes: the identity comes from the logo — a glitched wordmark inside
+   a deliberately broken frame. Both motifs repeat: chromatic-split type in the
+   hero, and a notched border ("--frame") on the portrait, cards and columns.
+   ========================================================================== */
+
+/* ---------- Tokens ---------- */
+:root {
+  --paper: #F2F3F5;
+  --surface: #FFFFFF;
+  --ink: #1F252E;
+  --muted: #626B7C;
+  --accent: #F9532D;
+  /* his brand vermilion */
+  --cyan: #1FA8B8;
+  /* the other half of a chromatic split */
+  --rule: rgba(31, 37, 46, .16);
+  --shadow: 6px 6px 0 var(--accent);
+}
+
+[data-theme="dark"] {
+  --paper: #1F252E;
+  --surface: #272E38;
+  --ink: #EDEFF2;
+  --muted: #98A1B0;
+  --accent: #F9532D;
+  --cyan: #3ECBDB;
+  --rule: rgba(237, 239, 242, .18);
+  --shadow: 6px 6px 0 var(--accent);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 80px;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'Outfit', system-ui, -apple-system, sans-serif;
+  font-size: 17px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  transition: background-color .35s ease, color .35s ease;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+h1,
+h2,
+h3 {
+  font-family: 'Space Grotesk', 'Outfit', sans-serif;
+  line-height: 1.06;
+  letter-spacing: -.025em;
+  font-weight: 700;
+}
+
+.wrap {
+  width: min(1120px, 90vw);
+  margin-inline: auto;
+}
+
+.mono {
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: .72rem;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.skip {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  background: var(--accent);
+  color: #fff;
+  padding: .7rem 1.2rem;
+  z-index: 999;
+  text-decoration: none;
+}
+
+.skip:focus {
+  left: 0;
+}
+
+/* ---------- The broken frame (from the logo) ---------- */
+.frame {
+  position: relative;
+  border: 2px solid var(--ink);
+}
+
+.frame::after {
+  content: "";
+  position: absolute;
+  left: -2px;
+  top: 24%;
+  width: 2px;
+  height: 26%;
+  background: var(--paper);
+}
+
+/* ==========================================================================
+   NAV
+   ========================================================================== */
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: color-mix(in srgb, var(--paper) 88%, transparent);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--rule);
+}
+
+.nav-in {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  height: 96px;
+}
+
+.logo {
+  margin-right: auto;
+  display: block;
+  line-height: 0;
+}
+
+.logo img {
+  height: 80px;
+  width: auto;
+}
+
+/* The mark flickers as it swaps files — same chromatic split as the hero name,
+   so the theme change reads as a deliberate glitch rather than a reload. */
+.logo img.swap {
+  animation: logoSwap .34s steps(2, end) 1;
+}
+
+@keyframes logoSwap {
+  0%   { opacity: .25; transform: translateX(-3px); filter: drop-shadow(2px 0 0 var(--accent)); }
+  40%  { opacity: 1;   transform: translateX(2px);  filter: drop-shadow(-2px 0 0 var(--cyan)); }
+  70%  { opacity: .6;  transform: translateX(-1px); filter: none; }
+  100% { opacity: 1;   transform: none;             filter: none; }
+}
+
+.nav-links {
+  display: flex;
+  gap: 1.6rem;
+}
+
+.nav-links a {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .74rem;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-decoration: none;
+  padding-bottom: .25rem;
+  border-bottom: 2px solid transparent;
+  transition: color .2s, border-color .2s;
+}
+
+.nav-links a:hover,
+.nav-links a.active {
+  color: var(--ink);
+  border-color: var(--accent);
+}
+
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+}
+
+.mode {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--ink);
+  cursor: pointer;
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+
+.mode:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 3px 3px 0 var(--accent);
+}
+
+.mode svg {
+  width: 17px;
+  height: 17px;
+}
+
+.i-moon {
+  display: none;
+}
+
+[data-theme="dark"] .i-sun {
+  display: none;
+}
+
+[data-theme="dark"] .i-moon {
+  display: block;
+}
+
+.burger {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 40px;
+  height: 40px;
+  border: 2px solid var(--ink);
+  background: var(--surface);
+  cursor: pointer;
+}
+
+.burger span {
+  display: block;
+  width: 18px;
+  height: 2px;
+  margin-inline: auto;
+  background: var(--ink);
+  transition: transform .25s ease, opacity .2s ease;
+}
+
+.burger.open span:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+
+.burger.open span:nth-child(2) {
+  opacity: 0;
+}
+
+.burger.open span:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+/* ==========================================================================
+   HERO
+   ========================================================================== */
+.hero {
+  padding: 4.5rem 0 4rem;
+}
+
+.hero-in {
+  display: grid;
+  grid-template-columns: 1.35fr .65fr;
+  gap: 3.5rem;
+  align-items: center;
+}
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: .55rem;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  padding: .28rem .85rem;
+  margin-bottom: 1.5rem;
+}
+
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 28%, transparent);
+}
+
+.hi {
+  margin-bottom: .5rem;
+}
+
+/* --- Signature: chromatic split, straight off the logo --- */
+.glitch {
+  position: relative;
+  font-size: clamp(2.9rem, 9vw, 6rem);
+  display: inline-block;
+  margin-bottom: .6rem;
+}
+
+.glitch::before,
+.glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.glitch::before {
+  color: var(--accent);
+  transform: translate(-2px, 1px);
+  opacity: .55;
+  mix-blend-mode: multiply;
+}
+
+.glitch::after {
+  color: var(--cyan);
+  transform: translate(2px, -1px);
+  opacity: .45;
+  mix-blend-mode: multiply;
+}
+
+[data-theme="dark"] .glitch::before,
+[data-theme="dark"] .glitch::after {
+  mix-blend-mode: screen;
+}
+
+.glitch:hover::before {
+  animation: slipA .5s steps(2, end) 2;
+}
+
+.glitch:hover::after {
+  animation: slipB .5s steps(2, end) 2;
+}
+
+@keyframes slipA {
+  0% { transform: translate(-2px, 1px); clip-path: inset(0 0 0 0); }
+  30% { transform: translate(-7px, 1px); clip-path: inset(18% 0 55% 0); }
+  60% { transform: translate(3px, -2px); clip-path: inset(62% 0 12% 0); }
+  100% { transform: translate(-2px, 1px); clip-path: inset(0 0 0 0); }
+}
+
+@keyframes slipB {
+  0% { transform: translate(2px, -1px); clip-path: inset(0 0 0 0); }
+  30% { transform: translate(7px, -1px); clip-path: inset(52% 0 22% 0); }
+  60% { transform: translate(-4px, 2px); clip-path: inset(10% 0 68% 0); }
+  100% { transform: translate(2px, -1px); clip-path: inset(0 0 0 0); }
+}
+
+.role {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(1.05rem, 2.6vw, 1.45rem);
+  font-weight: 500;
+  margin-bottom: 1.3rem;
+  box-shadow: inset 0 -.42em 0 color-mix(in srgb, var(--accent) 30%, transparent);
+  display: inline-block;
+}
+
+.lede {
+  max-width: 54ch;
+  color: var(--muted);
+  margin-bottom: 2rem;
+}
+
+.socials {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .7rem;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  background: var(--surface);
+  color: var(--ink);
+  border: 2px solid var(--ink);
+  padding: .5rem 1rem;
+  font-weight: 500;
+  font-size: .9rem;
+  text-decoration: none;
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+
+.pill svg {
+  width: 17px;
+  height: 17px;
+}
+
+.pill:hover {
+  transform: translate(-3px, -3px);
+  box-shadow: var(--shadow);
+}
+
+/* --- Portrait in the broken frame --- */
+.hero-portrait {
+  justify-self: center;
+}
+
+.portrait-frame {
+  position: relative;
+  border: 2px solid var(--ink);
+  padding: 1.1rem 1.1rem 0;
+  width: 260px;
+  max-width: 100%;
+}
+
+.portrait-frame::after {
+  content: "";
+  position: absolute;
+  left: -2px;
+  top: 22%;
+  width: 2px;
+  height: 28%;
+  background: var(--paper);
+}
+
+.portrait-block {
+  position: absolute;
+  left: 1.1rem;
+  right: 1.1rem;
+  bottom: 0;
+  height: 58%;
+  background: var(--accent);
+  z-index: 0;
+}
+
+.portrait {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: auto;
+}
+
+.portrait-cap {
+  margin-top: .8rem;
+  text-align: center;
+}
+
+/* ==========================================================================
+   SECTIONS
+   ========================================================================== */
+.section {
+  padding: 4.5rem 0;
+  border-top: 1px solid var(--rule);
+}
+
+.head {
+  margin-bottom: 2.75rem;
+}
+
+.eyebrow {
+  display: inline-block;
+  color: var(--accent);
+  margin-bottom: .7rem;
+}
+
+.head h2 {
+  font-size: clamp(1.8rem, 4.6vw, 2.9rem);
+}
+
+/* --- About --- */
+.about-grid {
+  display: grid;
+  grid-template-columns: 1.5fr .9fr;
+  gap: 3rem;
+}
+
+.about-copy p {
+  color: var(--muted);
+}
+
+.about-copy p + p {
+  margin-top: 1rem;
+}
+
+.about-copy strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.facts {
+  border-left: 2px solid var(--accent);
+  padding-left: 1.3rem;
+  align-self: start;
+}
+
+.facts dt {
+  margin-bottom: .15rem;
+}
+
+.facts dd {
+  margin-bottom: 1.1rem;
+  font-weight: 500;
+}
+
+.facts dd:last-child {
+  margin-bottom: 0;
+}
+
+/* --- Toolchain --- */
+.tool-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.4rem;
+}
+
+.tool-col {
+  position: relative;
+  background: var(--surface);
+  border: 2px solid var(--ink);
+  padding: 1.3rem;
+}
+
+.tool-col::after {
+  content: "";
+  position: absolute;
+  left: -2px;
+  top: 24%;
+  width: 2px;
+  height: 24%;
+  background: var(--paper);
+}
+
+.col-title {
+  color: var(--accent);
+  margin-bottom: .9rem;
+  font-weight: 600;
+}
+
+.tool-col ul {
+  list-style: none;
+}
+
+.tool-col li {
+  padding: .3rem 0;
+  border-bottom: 1px solid var(--rule);
+  font-size: .95rem;
+}
+
+.tool-col li:last-child {
+  border-bottom: 0;
+}
+
+/* --- Projects --- */
+.projects {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.6rem;
+}
+
+.card {
+  position: relative;
+  background: var(--surface);
+  border: 2px solid var(--ink);
+  padding: 1.6rem;
+  display: flex;
+  flex-direction: column;
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+
+.card::after {
+  content: "";
+  position: absolute;
+  left: -2px;
+  top: 22%;
+  width: 2px;
+  height: 22%;
+  background: var(--paper);
+  transition: background .18s ease;
+}
+
+.card:hover {
+  transform: translate(-4px, -4px);
+  box-shadow: var(--shadow);
+}
+
+.card:hover::after {
+  background: var(--accent);
+}
+
+.card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: .9rem;
+}
+
+.card-id {
+  color: var(--accent);
+}
+
+.card h3 {
+  font-size: 1.4rem;
+  margin-bottom: .55rem;
+}
+
+.card p {
+  color: var(--muted);
+  font-size: .95rem;
+  flex-grow: 1;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .4rem;
+  margin: 1.1rem 0;
+  list-style: none;
+}
+
+.tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .66rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  border: 1px solid var(--rule);
+  padding: .22rem .5rem;
+  color: var(--muted);
+}
+
+.card-links {
+  padding-top: .85rem;
+  border-top: 1px solid var(--rule);
+  display: flex;
+  gap: 1.2rem;
+}
+
+.card-links a {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .72rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.card-links a:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ==========================================================================
+   CONTACT + FOOTER
+   ========================================================================== */
+.contact {
+  padding: 5.5rem 0;
+  text-align: center;
+  border-top: 1px solid var(--rule);
+}
+
+.contact h2 {
+  font-size: clamp(1.9rem, 5.5vw, 3.4rem);
+  margin-bottom: 1rem;
+}
+
+.contact p {
+  color: var(--muted);
+  max-width: 48ch;
+  margin: 0 auto 2rem;
+}
+
+.cta {
+  display: inline-block;
+  background: var(--accent);
+  color: #fff;
+  border: 2px solid var(--accent);
+  padding: .85rem 2.2rem;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 1.05rem;
+  text-decoration: none;
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+
+.cta:hover {
+  transform: translate(-3px, -3px);
+  box-shadow: 6px 6px 0 var(--ink);
+}
+
+.contact-socials {
+  justify-content: center;
+  margin-top: 2.2rem;
+}
+
+footer {
+  border-top: 1px solid var(--rule);
+  padding: 1.7rem 0;
+}
+
+.foot-in {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+/* ==========================================================================
+   MOTION
+   ========================================================================== */
+.reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity .6s ease, transform .6s ease;
+}
+
+.reveal.in {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition-duration: .01ms !important;
+    animation: none !important;
+  }
+
+  html {
+    scroll-behavior: auto;
+  }
+
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ==========================================================================
+   RESPONSIVE
+   ========================================================================== */
+@media (max-width: 980px) {
+  .tool-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .hero-in {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+
+  .hero-portrait {
+    order: -1;
+    justify-self: start;
+  }
+
+  .about-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+}
+
+@media (max-width: 720px) {
+  body {
+    font-size: 16px;
+  }
+
+  .projects {
+    grid-template-columns: 1fr;
+  }
+
+  .burger {
+    display: flex;
+  }
+
+  .nav-links {
+    position: absolute;
+    top: 72px;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    gap: 0;
+    background: var(--paper);
+    border-bottom: 1px solid var(--rule);
+    padding: .5rem 5vw 1.2rem;
+    display: none;
+  }
+
+  .nav-links.open {
+    display: flex;
+  }
+
+  .nav-links a {
+    padding: .8rem 0;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .nav-links a:hover,
+  .nav-links a.active {
+    border-color: var(--rule);
+    color: var(--accent);
+  }
+}
+
+@media (max-width: 460px) {
+  .tool-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .foot-in {
+    flex-direction: column;
+  }
+}
