@@ -151,10 +151,29 @@ h3 {
 }
 
 @keyframes logoSwap {
-  0%   { opacity: .25; transform: translateX(-3px); filter: drop-shadow(2px 0 0 var(--accent)); }
-  40%  { opacity: 1;   transform: translateX(2px);  filter: drop-shadow(-2px 0 0 var(--cyan)); }
-  70%  { opacity: .6;  transform: translateX(-1px); filter: none; }
-  100% { opacity: 1;   transform: none;             filter: none; }
+  0% {
+    opacity: .25;
+    transform: translateX(-3px);
+    filter: drop-shadow(2px 0 0 var(--accent));
+  }
+
+  40% {
+    opacity: 1;
+    transform: translateX(2px);
+    filter: drop-shadow(-2px 0 0 var(--cyan));
+  }
+
+  70% {
+    opacity: .6;
+    transform: translateX(-1px);
+    filter: none;
+  }
+
+  100% {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
 }
 
 .nav-links {
@@ -334,17 +353,47 @@ h3 {
 }
 
 @keyframes slipA {
-  0% { transform: translate(-2px, 1px); clip-path: inset(0 0 0 0); }
-  30% { transform: translate(-7px, 1px); clip-path: inset(18% 0 55% 0); }
-  60% { transform: translate(3px, -2px); clip-path: inset(62% 0 12% 0); }
-  100% { transform: translate(-2px, 1px); clip-path: inset(0 0 0 0); }
+  0% {
+    transform: translate(-2px, 1px);
+    clip-path: inset(0 0 0 0);
+  }
+
+  30% {
+    transform: translate(-7px, 1px);
+    clip-path: inset(18% 0 55% 0);
+  }
+
+  60% {
+    transform: translate(3px, -2px);
+    clip-path: inset(62% 0 12% 0);
+  }
+
+  100% {
+    transform: translate(-2px, 1px);
+    clip-path: inset(0 0 0 0);
+  }
 }
 
 @keyframes slipB {
-  0% { transform: translate(2px, -1px); clip-path: inset(0 0 0 0); }
-  30% { transform: translate(7px, -1px); clip-path: inset(52% 0 22% 0); }
-  60% { transform: translate(-4px, 2px); clip-path: inset(10% 0 68% 0); }
-  100% { transform: translate(2px, -1px); clip-path: inset(0 0 0 0); }
+  0% {
+    transform: translate(2px, -1px);
+    clip-path: inset(0 0 0 0);
+  }
+
+  30% {
+    transform: translate(7px, -1px);
+    clip-path: inset(52% 0 22% 0);
+  }
+
+  60% {
+    transform: translate(-4px, 2px);
+    clip-path: inset(10% 0 68% 0);
+  }
+
+  100% {
+    transform: translate(2px, -1px);
+    clip-path: inset(0 0 0 0);
+  }
 }
 
 .role {
@@ -401,7 +450,7 @@ h3 {
   position: relative;
   border: 2px solid var(--ink);
   padding: 1.1rem 1.1rem 0;
-  width: 260px;
+  width: 312px;
   max-width: 100%;
 }
 
@@ -430,6 +479,8 @@ h3 {
   z-index: 1;
   width: 100%;
   height: auto;
+  transform: scale(1.25);
+  transform-origin: center bottom;
 }
 
 .portrait-cap {
@@ -470,7 +521,7 @@ h3 {
   color: var(--muted);
 }
 
-.about-copy p + p {
+.about-copy p+p {
   margin-top: 1rem;
 }
 
